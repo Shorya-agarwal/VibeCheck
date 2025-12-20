@@ -1,102 +1,55 @@
-import React, { useState, useRef, useEffect } from 'react';
-import WaveSurfer from 'wavesurfer.js';
+import React, { useState } from 'react';
 import axios from 'axios';
+import StemPlayer from './StemPlayer';
 
 function App() {
   const [file, setFile] = useState(null);
-  const [analysis, setAnalysis] = useState(null);
+  const [stems, setStems] = useState(null);
   const [loading, setLoading] = useState(false);
-  
-  const waveformRef = useRef(null);
-  const wavesurfer = useRef(null);
 
-  // Initialize Wavesurfer
-  useEffect(() => {
-    if (waveformRef.current) {
-      wavesurfer.current = WaveSurfer.create({
-        container: waveformRef.current,
-        waveColor: '#4F46E5',
-        progressColor: '#818CF8',
-        cursorColor: '#C7D2FE',
-        barWidth: 2,
-        barGap: 3,
-        height: 100,
-      });
-    }
-    return () => wavesurfer.current?.destroy();
-  }, []);
+  const handleFileChange = (e) => setFile(e.target.files[0]);
 
-  const handleFileChange = (e) => {
-    const selectedFile = e.target.files[0];
-    if (selectedFile) {
-      setFile(selectedFile);
-      // Load audio into visualizer
-      const objectUrl = URL.createObjectURL(selectedFile);
-      wavesurfer.current.load(objectUrl);
-    }
-  };
-
-  const handleAnalyze = async () => {
+  const handleRemix = async () => {
     if (!file) return;
     setLoading(true);
-    
     const formData = new FormData();
     formData.append('file', file);
 
     try {
-      const response = await axios.post('http://localhost:8000/analyze', formData);
-      setAnalysis(response.data);
+      // Call the NEW remix endpoint
+      const response = await axios.post('http://localhost:8000/remix', formData);
+      setStems(response.data.stems);
     } catch (error) {
-      console.error("Error analyzing audio", error);
-      alert("Analysis failed!");
+      console.error(error);
+      alert("Remix failed! (Did you install Demucs?)");
     } finally {
       setLoading(false);
     }
   };
 
-  const togglePlay = () => {
-    wavesurfer.current?.playPause();
-  };
-
   return (
-    <div style={{ maxWidth: '600px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
-      <h1>🎵 VibeCheck</h1>
-      <p>Upload a track to analyze its BPM and Mood.</p>
+    <div style={{ maxWidth: '800px', margin: '0 auto', padding: '20px', fontFamily: 'sans-serif' }}>
+      <h1>🎹 AI Remix Engine</h1>
+      <p>Upload a song to separate Vocals, Drums, Bass, and Others.</p>
       
-      {/* File Upload */}
-      <input type="file" accept="audio/*" onChange={handleFileChange} style={{ marginBottom: '20px' }} />
-
-      {/* Visualizer Container */}
-      <div 
-        ref={waveformRef} 
-        style={{ width: '100%', border: '1px solid #ccc', borderRadius: '8px', marginBottom: '20px' }}
-      ></div>
-
-      {/* Controls */}
-      <div style={{ display: 'flex', gap: '10px', marginBottom: '20px' }}>
-        <button onClick={togglePlay} disabled={!file} style={{ padding: '10px 20px' }}>
-          Play/Pause
-        </button>
+      <div style={{ display: 'flex', gap: '10px', marginBottom: '30px' }}>
+        <input type="file" onChange={handleFileChange} />
         <button 
-          onClick={handleAnalyze} 
-          disabled={!file || loading} 
-          style={{ padding: '10px 20px', backgroundColor: '#4F46E5', color: 'white', border: 'none', borderRadius: '5px', cursor: 'pointer' }}
+          onClick={handleRemix} 
+          disabled={!file || loading}
+          style={{ padding: '10px 20px', background: '#4F46E5', color: 'white', border: 'none', borderRadius: '5px' }}
         >
-          {loading ? 'Analyzing...' : 'Analyze Vibe'}
+          {loading ? 'Separating Stems (Wait ~30s)...' : '✨ Separate Stems'}
         </button>
       </div>
 
-      {/* Results */}
-      {analysis && (
-        <div style={{ backgroundColor: '#f3f4f6', padding: '20px', borderRadius: '8px' }}>
-          <h2>Analysis Results</h2>
-          <p><strong>Filename:</strong> {analysis.filename}</p>
-          <p><strong>BPM:</strong> {analysis.bpm}</p>
-          <p><strong>Spectral Brightness:</strong> {analysis.spectral_centroid}</p>
-          <div style={{ marginTop: '10px', padding: '10px', backgroundColor: '#e0e7ff', borderLeft: '4px solid #4F46E5' }}>
-            <strong>✨ AI Mood Description:</strong>
-            <p>{analysis.mood}</p>
-          </div>
+      {stems && (
+        <div style={{ background: '#f9fafb', padding: '20px', borderRadius: '10px' }}>
+          <h2>Your Stems</h2>
+          <StemPlayer label="Vocals" audioUrl={stems.vocals} color="#ec4899" />
+          <StemPlayer label="Drums" audioUrl={stems.drums} color="#f59e0b" />
+          <StemPlayer label="Bass" audioUrl={stems.bass} color="#8b5cf6" />
+          <StemPlayer label="Other" audioUrl={stems.other} color="#10b981" />
         </div>
       )}
     </div>

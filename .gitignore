@@ -34,6 +34,7 @@ venv/
 env/
 .venv/
 ENV/
+demucs
 
 # Environment Variables (NEVER commit these)
 .env
