@@ -69,7 +69,7 @@ Prerequisites
 ### Option A: Quick Start (Local)
 ### 1. Clone the Repository
 ``` bash
-git clone https://github.com/Shorya-agarwa/VibeCheck.git
+git clone https://github.com/Shorya-agarwal/VibeCheck.git
 cd VibeCheck
 ```
 ### 2. Backend Setup
