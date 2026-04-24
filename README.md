@@ -59,6 +59,31 @@ graph TD
 | **DSP** | Librosa / FFmpeg | Digital Signal Processing for feature extraction and decoding. |
 | **Infrastructure** | Docker | Containerization for reproducible builds (handling system-level dependencies). |
 
+
+## ML Infrastructure Highlights
+
+### Model Deployment at Scale
+- Deployed PyTorch Demucs Transformer model (138M parameters) in production
+- Handled inference latency optimization (20-40s for 3-4min audio files)
+- Async processing architecture for batch processing multiple audio files
+
+### Audio Processing Pipeline
+- Built end-to-end pipeline: audio ingestion → model inference → output delivery
+- Implemented robust error handling for varied audio quality and formats
+- Solved production ML deployment challenges (PyTorch dependencies, GPU/CPU switching)
+
+### Infrastructure & Cost Optimization
+- Containerized ML inference pipeline with Docker (handling FFmpeg, PyTorch dependencies)
+- Optimized memory usage for large model inference
+- Designed for horizontal scaling (ready for distributed processing)
+
+## Relevant to Multimodal AI Training Data
+This project demonstrates:
+* ✓ Deploying large PyTorch models in production.
+* ✓ Building robust pipelines that handle audio variation.
+* ✓ Infrastructure engineering for ML workloads.
+* ✓ Data quality focus (audio source separation accuracy).
+
 ## 🚀 Getting Started
 Prerequisites
 * Node.js (v18+)
